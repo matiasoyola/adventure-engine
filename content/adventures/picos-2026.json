@@ -1,0 +1,51 @@
+{
+  "id": "picos-2026",
+  "version": "1.0.0",
+  "title": "La Gran Aventura de los Picos",
+  "description": "Semana Santa 2026 — Picos de Europa",
+  "coverImage": "/images/picos-cover.jpg",
+  "zones": [
+    {
+      "id": "lago-enol",
+      "name": "El Lago Encantado",
+      "description": "Un lago misterioso rodeado de montañas",
+      "narrative": "Dicen los pastores que en las noches de luna llena, el lago brilla con una luz extraña. Los más valientes dicen que bajo el agua duerme el Guardián de los Picos, esperando a quien demuestre ser digno de su insignia...",
+      "icon": "🏔️",
+      "suggestedOrder": 1,
+      "badge": { "id": "guardian-lago", "name": "Guardián del Lago", "icon": "🐉" },
+      "steps": [
+        { "id": "enol-1", "order": 1, "text": "El guardián dice: buscad una piedra que tenga forma de corazón cerca del agua. Cuando la encontréis, ponedla en el suelo y poned la mano encima.", "type": "check" },
+        { "id": "enol-2", "order": 2, "text": "Ahora contad todos los patos que veáis en el lago. Decid el número en voz alta tres veces. ¡El guardián os escucha!", "type": "check" },
+        { "id": "enol-3", "order": 3, "text": "El guardián quiere ver a toda la familia junta. Haced una foto con el lago de fondo para demostrar que habéis llegado hasta aquí.", "type": "photo" }
+      ]
+    },
+    {
+      "id": "covadonga",
+      "name": "La Cueva Sagrada",
+      "description": "La cueva donde todo empezó",
+      "narrative": "Hace más de mil años, un guerrero llamado Pelayo se escondió en esta cueva con un puñado de valientes. Hoy vosotros seguís sus pasos. La cueva guarda un secreto que solo los exploradores más atentos descubren...",
+      "icon": "⛪",
+      "suggestedOrder": 2,
+      "badge": { "id": "explorador-covadonga", "name": "Explorador de Covadonga", "icon": "🗿" },
+      "steps": [
+        { "id": "cova-1", "order": 1, "text": "Encontrad la cascada que hay junto a la cueva. Escuchad su sonido durante 30 segundos sin hablar. ¿Qué os parece que dice el agua?", "type": "check" },
+        { "id": "cova-2", "order": 2, "text": "Buscad una vela encendida dentro de la cueva. Pedid un deseo en silencio para el viaje.", "type": "check" },
+        { "id": "cova-3", "order": 3, "text": "Antes de salir, haced una foto del lugar más bonito que hayáis visto aquí dentro.", "type": "photo" }
+      ]
+    },
+    {
+      "id": "ruta-cares",
+      "name": "El Desfiladero del Tiempo",
+      "description": "El camino más espectacular de los Picos",
+      "narrative": "El río Cares lleva miles de años abriendo paso entre las montañas. Este camino lo construyeron hace casi cien años para llevar agua a una central eléctrica. Cada paso que dais, ellos también lo dieron...",
+      "icon": "🦅",
+      "suggestedOrder": 3,
+      "badge": { "id": "caminante-cares", "name": "Caminante del Cares", "icon": "🦅" },
+      "steps": [
+        { "id": "cares-1", "order": 1, "text": "Buscad un puente sobre el río. Parados en el centro, mirad hacia abajo y contad hasta 10. ¿A cuántos metros creéis que está el agua?", "type": "check" },
+        { "id": "cares-2", "order": 2, "text": "Encontrad una flor silvestre en el camino. No la arranquéis: hacedle una reverencia como señal de respeto al desfiladero.", "type": "check" },
+        { "id": "cares-3", "order": 3, "text": "Foto obligatoria: alguien del grupo con los brazos abiertos mirando al desfiladero. ¡El caminante del Cares!", "type": "photo" }
+      ]
+    }
+  ]
+}
