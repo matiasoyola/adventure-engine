@@ -3,9 +3,11 @@ import { drizzle } from 'drizzle-orm/better-sqlite3'
 import path from 'path'
 import * as schema from './schema'
 
-const globalForDb = globalThis as unknown as { db: ReturnType<typeof drizzle> | undefined }
+type DrizzleDb = ReturnType<typeof drizzle<typeof schema>>
 
-function createDb() {
+const globalForDb = globalThis as unknown as { db: DrizzleDb | undefined }
+
+function createDb(): DrizzleDb {
   const rawPath = process.env.DATABASE_URL ?? path.join(process.cwd(), 'adventure.db')
 
   if (process.env.NODE_ENV === 'production' && !path.isAbsolute(rawPath)) {
