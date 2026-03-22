@@ -80,7 +80,7 @@ export function applyAction(
       return next
     }
     default:
-      return assertNever(action)
+      return state
   }
 }
 
