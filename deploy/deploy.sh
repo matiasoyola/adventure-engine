@@ -24,7 +24,7 @@ fi
 export $(grep -v '^#' .env.production | xargs)
 
 echo "→ Instalando dependencias..."
-npm ci
+npm ci --omit=dev
 
 echo "→ Ejecutando migraciones..."
 npm run db:migrate

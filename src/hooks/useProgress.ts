@@ -3,15 +3,22 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ProgressResponse, GameAction } from '@/lib/engine/types'
 
-const USER_KEY = 'adventure_user_id'
+const CHILD_KEY = 'adventure_child_id'
+const ADULT_KEY = 'adventure_adult_id'
 
-export function getUserId(): string | null {
+export function getChildId(): string | null {
   if (typeof window === 'undefined') return null
-  return localStorage.getItem(USER_KEY)
+  return localStorage.getItem(CHILD_KEY)
 }
+export function setChildId(id: string) { localStorage.setItem(CHILD_KEY, id) }
+export function clearChildId() { localStorage.removeItem(CHILD_KEY) }
 
-export function setUserId(id: string) { localStorage.setItem(USER_KEY, id) }
-export function clearUserId() { localStorage.removeItem(USER_KEY) }
+export function getAdultId(): string | null {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem(ADULT_KEY)
+}
+export function setAdultId(id: string) { localStorage.setItem(ADULT_KEY, id) }
+export function clearAdultId() { localStorage.removeItem(ADULT_KEY) }
 
 export function useProgress() {
   const [data, setData]       = useState<ProgressResponse | null>(null)
@@ -19,7 +26,7 @@ export function useProgress() {
   const [error, setError]     = useState<string | null>(null)
 
   const fetch_ = useCallback(async () => {
-    const id = getUserId()
+    const id = getChildId()
     if (!id) { setLoading(false); return }
     try {
       setLoading(true)
@@ -36,7 +43,7 @@ export function useProgress() {
   useEffect(() => { fetch_() }, [fetch_])
 
   const dispatch = useCallback(async (action: GameAction) => {
-    const id = getUserId()
+    const id = getChildId()
     if (!id) return
     try {
       const res = await fetch(`/api/progress/${id}`, {

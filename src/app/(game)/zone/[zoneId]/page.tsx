@@ -3,139 +3,340 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { useProgress, getUserId } from '@/hooks/useProgress'
+import { useProgress, getChildId } from '@/hooks/useProgress'
 import StepDrawer from '@/components/game/StepDrawer'
+import BadgeCelebration from '@/components/game/BadgeCelebration'
 import ProgressBar from '@/components/game/ProgressBar'
-import type { StepView, GameAction } from '@/lib/engine/types'
+import PinModal from '@/components/game/PinModal'
+import type { StepView, GameAction, ClueView } from '@/lib/engine/types'
+
+interface Adult { id: string; name: string; avatar: string }
+
+const CLUE_STATUS_LABEL: Record<string, string> = {
+  locked: 'Bloqueada', available: 'Disponible', in_progress: 'En curso', completed: 'Completada',
+}
+const CLUE_STATUS_CLASS: Record<string, string> = {
+  locked: 'badge-locked', available: 'badge-available',
+  in_progress: 'badge-progress', completed: 'badge-completed',
+}
+
+function ClueCard({ clue, zoneId, onStepPress, isExpanded, onToggle }:
+  { clue: ClueView; zoneId: string; onStepPress: (step: StepView, clueId: string) => void;
+    isExpanded: boolean; onToggle: () => void }) {
+
+  const isInteractive = clue.status !== 'locked'
+  const pct = clue.stepsTotal > 0 ? Math.round(clue.stepsCompleted / clue.stepsTotal * 100) : 0
+
+  const bgColor = clue.status === 'completed' ? '#f0faf4'
+    : clue.status === 'in_progress' ? '#fffcf0'
+    : clue.status === 'available' ? '#f0f6ff'
+    : 'var(--bg-muted)'
+
+  const borderColor = clue.status === 'completed' ? 'var(--green)'
+    : clue.status === 'in_progress' ? 'var(--amber)'
+    : clue.status === 'available' ? 'var(--blue)'
+    : 'var(--border)'
+
+  return (
+    <div style={{ borderRadius: 'var(--r-lg)', overflow: 'hidden',
+      border: `1.5px solid ${borderColor}`, boxShadow: 'var(--shadow)',
+      opacity: clue.status === 'locked' ? .55 : 1 }}>
+
+      {/* Clue header */}
+      <div onClick={isInteractive ? onToggle : undefined}
+        style={{ padding: '14px 16px', background: bgColor,
+          cursor: isInteractive ? 'pointer' : 'default',
+          display: 'flex', alignItems: 'center', gap: 12 }}>
+
+        {/* Number */}
+        <div style={{
+          width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: clue.status === 'completed' ? 'var(--green)'
+            : clue.status === 'in_progress' ? 'var(--amber)'
+            : clue.status === 'available' ? 'var(--blue)'
+            : 'var(--border)',
+          color: clue.status === 'locked' ? 'var(--ink-3)' : '#fff',
+          fontSize: clue.status === 'locked' ? '.9rem' : '.95rem', fontWeight: 700,
+        }}>
+          {clue.status === 'locked' ? '🔒' : clue.status === 'completed' ? '✓' : clue.order}
+        </div>
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: '.95rem', color: 'var(--ink)',
+            fontFamily: 'var(--font-display)' }}>
+            {clue.title}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
+            <span className={`badge ${CLUE_STATUS_CLASS[clue.status]}`}>
+              {CLUE_STATUS_LABEL[clue.status]}
+            </span>
+            {clue.status !== 'locked' && (
+              <span style={{ fontSize: '.72rem', color: 'var(--ink-3)', fontFamily: 'var(--font-body)' }}>
+                {clue.stepsCompleted}/{clue.stepsTotal} actividades
+              </span>
+            )}
+          </div>
+        </div>
+
+        {isInteractive && (
+          <span style={{ color: 'var(--ink-3)', fontSize: '1rem', transition: 'transform .2s',
+            transform: isExpanded ? 'rotate(180deg)' : 'none' }}>▼</span>
+        )}
+      </div>
+
+      {/* Progress bar if in progress */}
+      {clue.status === 'in_progress' && (
+        <div style={{ padding: '0 16px 8px', background: bgColor }}>
+          <ProgressBar value={pct} />
+        </div>
+      )}
+
+      {/* Expanded content */}
+      {isExpanded && isInteractive && (
+        <div style={{ background: 'var(--bg-card)', borderTop: `1px solid ${borderColor}` }}>
+
+          {/* Narrative */}
+          <div style={{ padding: '14px 16px',
+            background: clue.status === 'completed' ? 'var(--green-lt)' : 'var(--bg-muted)',
+            borderBottom: '1px solid var(--border)' }}>
+            <p style={{ fontSize: '.85rem', lineHeight: 1.65, color: 'var(--ink-2)',
+              fontStyle: 'italic', margin: 0 }}>
+              "{clue.narrative}"
+            </p>
+          </div>
+
+          {/* Steps */}
+          <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {clue.steps.map((step, si) => {
+              const isNextStep = !step.completed && si === clue.steps.findIndex(s => !s.completed)
+              const isLocked = !step.completed && !isNextStep
+
+              return (
+                <div key={step.id} onClick={() => !isLocked && onStepPress(step, clue.id)}
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 10,
+                    padding: '10px 12px', borderRadius: 'var(--r-sm)',
+                    background: step.completed ? 'var(--green-lt)'
+                      : isNextStep ? 'var(--amber-lt)' : 'var(--bg-muted)',
+                    border: `1px solid ${step.completed ? 'var(--green)'
+                      : isNextStep ? 'var(--amber)' : 'transparent'}`,
+                    cursor: isLocked ? 'default' : 'pointer',
+                    opacity: isLocked ? .5 : 1,
+                  }}>
+                  <div style={{
+                    width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: step.completed ? 'var(--green)'
+                      : isNextStep ? 'var(--amber)' : 'var(--border)',
+                    fontSize: '.72rem', color: isLocked ? 'var(--ink-3)' : '#fff', fontWeight: 700,
+                  }}>
+                    {step.completed ? '✓' : isLocked ? '🔒' : step.type === 'photo' ? '📷' : si + 1}
+                  </div>
+                  <span style={{ fontSize: '.83rem', lineHeight: 1.5,
+                    color: isLocked ? 'var(--ink-3)' : 'var(--ink)',
+                    textDecoration: step.completed ? 'line-through' : 'none',
+                    fontFamily: 'var(--font-body)', flex: 1 }}>
+                    {step.text}
+                  </span>
+                  {!isLocked && !step.completed && (
+                    <span style={{ color: isNextStep ? 'var(--amber)' : 'var(--ink-3)',
+                      fontSize: '1rem', flexShrink: 0 }}>→</span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Completion message */}
+          {clue.status === 'completed' && (
+            <div style={{ margin: '0 14px 14px', padding: '12px',
+              background: 'var(--green-lt)', borderRadius: 'var(--r-md)',
+              border: '1px solid var(--green)' }}>
+              <p style={{ fontSize: '.8rem', color: 'var(--green-dk)',
+                fontStyle: 'italic', margin: 0, lineHeight: 1.5 }}>
+                {clue.completionMessage}
+              </p>
+              {clue.nextClueHint && (
+                <p style={{ fontSize: '.75rem', color: 'var(--ink-3)',
+                  margin: '6px 0 0', fontWeight: 600 }}>
+                  → {clue.nextClueHint}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function ZonePage() {
-  const router  = useRouter()
-  const params  = useParams()
-  const zoneId  = params.zoneId as string
-  const { data, loading, error, dispatch } = useProgress()
-  const [activeStep, setActiveStep]       = useState<StepView | null>(null)
-  const [justCompleted, setJustCompleted] = useState<string | null>(null)
+  const router = useRouter()
+  const params = useParams()
+  const zoneId = params.zoneId as string
 
-  useEffect(() => { if (!getUserId()) router.replace('/') }, [router])
+  const { data, loading, error, dispatch } = useProgress()
+  const [activeStep, setActiveStep]         = useState<StepView | null>(null)
+  const [activeClueId, setActiveClueId]     = useState<string | null>(null)
+  const [expandedClue, setExpandedClue]     = useState<string | null>(null)
+  const [showBadge, setShowBadge]           = useState(false)
+  const [showPin, setShowPin]               = useState(false)
+  const [adults, setAdults]                 = useState<Adult[]>([])
+  const [prevBadges, setPrevBadges]         = useState<string[]>([])
+
+  useEffect(() => { if (!getChildId()) router.replace('/') }, [router])
+  useEffect(() => {
+    fetch('/api/adults').then(r => r.json()).then(setAdults).catch(() => {})
+  }, [])
+  useEffect(() => {
+    if (data) {
+      const zone = data.gameState.zones.find(z => z.id === zoneId)
+      if (zone) {
+        // Auto-expand first non-locked clue
+        const first = zone.clues.find(c => c.status !== 'locked')
+        if (first && !expandedClue) setExpandedClue(first.id)
+      }
+    }
+  }, [data?.gameState])
 
   if (loading) return <div className="center" style={{ minHeight: '100dvh' }}><div className="spinner animate-spin" /></div>
-
   if (error || !data) return (
-    <div className="center page" style={{ minHeight: '100dvh' }}>
-      <p>{error ?? 'No se pudo cargar la zona'}</p>
-      <Link href="/map" className="btn btn-secondary" style={{ marginTop: 8 }}>← Volver al mapa</Link>
-    </div>
+    <div className="center page"><p>{error ?? 'Error'}</p>
+      <Link href="/map" className="btn btn-secondary" style={{ marginTop: 8 }}>← Mapa</Link></div>
   )
 
   const zone = data.gameState.zones.find(z => z.id === zoneId)
   if (!zone) return (
-    <div className="center page" style={{ minHeight: '100dvh' }}>
-      <p>Zona no encontrada</p>
-      <Link href="/map" className="btn btn-secondary" style={{ marginTop: 8 }}>← Volver al mapa</Link>
-    </div>
+    <div className="center page"><p>Zona no encontrada</p>
+      <Link href="/map" className="btn btn-secondary" style={{ marginTop: 8 }}>← Mapa</Link></div>
   )
 
-  const pct = zone.stepsTotal > 0 ? Math.round((zone.stepsCompleted / zone.stepsTotal) * 100) : 0
+  const cluesPct = zone.cluesTotal > 0
+    ? Math.round(zone.cluesCompleted / zone.cluesTotal * 100) : 0
 
   async function handleAction(action: GameAction) {
-    if (action.type === 'complete_step') {
-      setJustCompleted(action.stepId)
-      setTimeout(() => setJustCompleted(null), 1200)
-    }
+    const before = data!.gameState.badges.slice()
     await dispatch(action)
+    // Check if new badge was earned (will be detected on next render via useEffect below)
+    setPrevBadges(before)
   }
+
+  // Detect new badge
+  useEffect(() => {
+    if (data && prevBadges.length > 0) {
+      const newBadge = data.gameState.badges.find(b => !prevBadges.includes(b))
+      if (newBadge) setShowBadge(true)
+    }
+  }, [data?.gameState.badges.join(',')])
 
   return (
     <div>
+      {/* Header */}
       <div className="header">
         <Link href="/map" className="btn btn-ghost" style={{ padding: '6px 4px' }}>← Mapa</Link>
-        <span className="header-title" style={{ flex: 1, textAlign: 'center' }}>{zone.icon} {zone.name}</span>
+        <span className="header-title" style={{ flex: 1, textAlign: 'center', overflow: 'hidden',
+          textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {zone.icon} {zone.name}
+        </span>
         <div style={{ width: 56 }} />
       </div>
 
-      <div className="page" style={{ paddingTop: 20 }}>
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <span style={{ fontSize: '.85rem', color: 'var(--ink-2)', fontWeight: 600 }}>
-              {zone.stepsCompleted} de {zone.stepsTotal} pistas
+      {/* Zone hero */}
+      <div style={{ background: 'linear-gradient(135deg,#1a1a2e,#16213e)',
+        padding: '16px 16px 20px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: -8, top: -8, fontSize: '6rem',
+          opacity: .1, lineHeight: 1 }}>{zone.icon}</div>
+        <div style={{ position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <span style={{ fontSize: '.72rem', fontWeight: 700, color: 'rgba(255,255,255,.5)',
+              textTransform: 'uppercase', letterSpacing: '.08em', fontFamily: 'var(--font-body)' }}>
+              {zone.universe}
             </span>
-            {zone.status === 'completed' && <span className="badge badge-completed">✓ Zona completada</span>}
-            {zone.status === 'in_progress' && <span className="badge badge-progress">En curso</span>}
+            {zone.status === 'completed' && (
+              <span className="badge badge-completed">✓ Completado</span>
+            )}
           </div>
-          <ProgressBar value={pct} />
+          <ProgressBar value={cluesPct}
+            label={`${zone.cluesCompleted}/${zone.cluesTotal} pistas completadas`} />
         </div>
+      </div>
 
-        <div style={{ background: 'var(--ink)', color: '#fff', borderRadius: 'var(--r-lg)',
-          padding: '20px', marginBottom: 24, position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: -10, right: -10, fontSize: '5rem', opacity: .12, lineHeight: 1 }}>
-            {zone.icon}
+      {/* Morning card button */}
+      <div style={{ padding: '12px 16px 0' }}>
+        <button onClick={() => setShowPin(true)} style={{
+          width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+          background: 'linear-gradient(135deg, var(--gold), #e8960e)',
+          border: 'none', borderRadius: 'var(--r-md)', padding: '12px 16px',
+          cursor: 'pointer', boxShadow: '0 3px 0 #b8920a',
+          fontFamily: 'var(--font-body)', textAlign: 'left',
+        }}>
+          <span style={{ fontSize: '1.4rem' }}>🌅</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--gold-dk)' }}>
+              Carta del Día
+            </div>
+            <div style={{ fontSize: '.75rem', color: 'rgba(58,32,0,.6)' }}>
+              Solo moderadores · {zone.morningCard.universe}
+            </div>
           </div>
-          <p style={{ color: 'rgba(255,255,255,.9)', fontSize: '.95rem', lineHeight: 1.7,
-            fontStyle: 'italic', margin: 0, position: 'relative' }}>
-            "{zone.narrative}"
-          </p>
-        </div>
+          <span style={{ color: 'var(--gold-dk)', fontSize: '1rem' }}>🔑</span>
+        </button>
+      </div>
 
+      <div className="page" style={{ paddingTop: 16 }}>
+        {/* Badge earned */}
         {zone.badge.unlocked && (
-          <div className="animate-pop" style={{ background: 'var(--amber-lt)', border: '2px solid var(--amber)',
-            borderRadius: 'var(--r-lg)', padding: '16px 18px',
-            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-            <span style={{ fontSize: '2.2rem' }}>{zone.badge.icon}</span>
+          <div className="animate-pop" style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            background: 'var(--amber-lt)', border: '2px solid var(--amber)',
+            borderRadius: 'var(--r-md)', padding: '14px 16px', marginBottom: 16,
+          }}>
+            <span style={{ fontSize: '2rem' }}>{zone.badge.icon}</span>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '1rem', color: '#7a5000' }}>¡Insignia conseguida!</div>
-              <div style={{ fontSize: '.85rem', color: '#a06800' }}>{zone.badge.name}</div>
+              <div style={{ fontWeight: 700, color: 'var(--amber-dk)' }}>¡Insignia desbloqueada!</div>
+              <div style={{ fontSize: '.82rem', color: 'var(--ink-3)' }}>{zone.badge.name}</div>
             </div>
           </div>
         )}
 
-        <h2 style={{ marginBottom: 14, fontSize: '1rem', color: 'var(--ink-2)', fontWeight: 700 }}>Pistas</h2>
+        {/* Clues */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {zone.steps.map((step, idx) => {
-            const isNext   = !step.completed && zone.nextStep?.id === step.id
-            const isLocked = !step.completed && !isNext && idx > zone.stepsCompleted
-            const wasJustDone = justCompleted === step.id
-
-            return (
-              <div key={step.id} onClick={() => !isLocked && setActiveStep(step)} style={{
-                display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
-                background: step.completed ? 'var(--green-lt)' : isNext ? 'var(--amber-lt)' : 'var(--bg-muted)',
-                border: `1.5px solid ${step.completed ? 'var(--green)' : isNext ? 'var(--amber)' : 'transparent'}`,
-                borderRadius: 'var(--r-md)', cursor: isLocked ? 'default' : 'pointer',
-                opacity: isLocked ? .45 : 1, transition: 'transform .12s',
-                transform: wasJustDone ? 'scale(1.01)' : 'scale(1)',
-              }}>
-                <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: step.completed ? 'var(--green)' : isNext ? 'var(--amber)' : 'var(--border)',
-                  fontSize: '.9rem' }}>
-                  {step.completed ? <span style={{ color: '#fff', fontWeight: 700 }}>✓</span>
-                    : isLocked ? <span>🔒</span>
-                    : step.type === 'photo' ? <span>📷</span>
-                    : <span style={{ color: '#fff', fontWeight: 700 }}>{idx + 1}</span>}
-                </div>
-                <div style={{ flex: 1, minWidth: 0, fontSize: '.9rem',
-                  fontWeight: isNext ? 700 : 500, color: isLocked ? 'var(--ink-3)' : 'var(--ink)',
-                  overflow: 'hidden', textOverflow: 'ellipsis',
-                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                  {isLocked ? 'Completa la pista anterior para desbloquear' : step.text}
-                </div>
-                {!isLocked && !step.completed && (
-                  <span style={{ color: isNext ? 'var(--amber)' : 'var(--ink-3)', fontSize: '1.1rem', flexShrink: 0 }}>→</span>
-                )}
-              </div>
-            )
-          })}
+          {zone.clues.map(clue => (
+            <ClueCard key={clue.id} clue={clue} zoneId={zoneId}
+              isExpanded={expandedClue === clue.id}
+              onToggle={() => setExpandedClue(expandedClue === clue.id ? null : clue.id)}
+              onStepPress={(step, clueId) => { setActiveStep(step); setActiveClueId(clueId) }} />
+          ))}
         </div>
 
         {zone.status === 'completed' && (
-          <div style={{ textAlign: 'center', marginTop: 28 }}>
+          <div style={{ marginTop: 24 }}>
             <Link href="/map" className="btn btn-primary">← Volver al mapa</Link>
           </div>
         )}
       </div>
 
-      {activeStep && (
-        <StepDrawer step={activeStep} zoneId={zoneId} onClose={() => setActiveStep(null)} onComplete={handleAction} />
+      {/* Step drawer */}
+      {activeStep && activeClueId && (
+        <StepDrawer step={activeStep} zoneId={zoneId} clueId={activeClueId}
+          onClose={() => { setActiveStep(null); setActiveClueId(null) }}
+          onComplete={handleAction} />
+      )}
+
+      {/* Badge celebration */}
+      {showBadge && (
+        <BadgeCelebration badge={zone.badge} onClose={() => { setShowBadge(false); router.push('/map') }} />
+      )}
+
+      {/* PIN modal for morning card */}
+      {showPin && adults.length > 0 && (
+        <PinModal adults={adults}
+          onSuccess={(adultId) => {
+            setShowPin(false)
+            router.push(`/morning/${zoneId}`)
+          }}
+          onCancel={() => setShowPin(false)} />
       )}
     </div>
   )

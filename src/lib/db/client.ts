@@ -4,7 +4,6 @@ import path from 'path'
 import * as schema from './schema'
 
 type DrizzleDb = ReturnType<typeof drizzle<typeof schema>>
-
 const globalForDb = globalThis as unknown as { db: DrizzleDb | undefined }
 
 function createDb(): DrizzleDb {
@@ -12,8 +11,7 @@ function createDb(): DrizzleDb {
 
   if (process.env.NODE_ENV === 'production' && !path.isAbsolute(rawPath)) {
     throw new Error(
-      `DATABASE_URL debe ser una ruta absoluta en producción.\n` +
-      `Valor recibido: "${rawPath}"\n` +
+      `DATABASE_URL debe ser ruta absoluta en producción.\n` +
       `Ejemplo: "/var/www/adventure-engine/data/adventure.db"`
     )
   }
