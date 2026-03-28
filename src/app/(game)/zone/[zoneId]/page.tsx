@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useProgress, getChildId } from '@/hooks/useProgress'
@@ -42,13 +42,11 @@ function ClueCard({ clue, zoneId, onStepPress, isExpanded, onToggle }:
       border: `1.5px solid ${borderColor}`, boxShadow: 'var(--shadow)',
       opacity: clue.status === 'locked' ? .55 : 1 }}>
 
-      {/* Clue header */}
       <div onClick={isInteractive ? onToggle : undefined}
         style={{ padding: '14px 16px', background: bgColor,
           cursor: isInteractive ? 'pointer' : 'default',
           display: 'flex', alignItems: 'center', gap: 12 }}>
 
-        {/* Number */}
         <div style={{
           width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -85,18 +83,14 @@ function ClueCard({ clue, zoneId, onStepPress, isExpanded, onToggle }:
         )}
       </div>
 
-      {/* Progress bar if in progress */}
       {clue.status === 'in_progress' && (
         <div style={{ padding: '0 16px 8px', background: bgColor }}>
           <ProgressBar value={pct} />
         </div>
       )}
 
-      {/* Expanded content */}
       {isExpanded && isInteractive && (
         <div style={{ background: 'var(--bg-card)', borderTop: `1px solid ${borderColor}` }}>
-
-          {/* Narrative */}
           <div style={{ padding: '14px 16px',
             background: clue.status === 'completed' ? 'var(--green-lt)' : 'var(--bg-muted)',
             borderBottom: '1px solid var(--border)' }}>
@@ -106,7 +100,6 @@ function ClueCard({ clue, zoneId, onStepPress, isExpanded, onToggle }:
             </p>
           </div>
 
-          {/* Steps */}
           <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
             {clue.steps.map((step, si) => {
               const isNextStep = !step.completed && si === clue.steps.findIndex(s => !s.completed)
@@ -148,7 +141,6 @@ function ClueCard({ clue, zoneId, onStepPress, isExpanded, onToggle }:
             })}
           </div>
 
-          {/* Completion message */}
           {clue.status === 'completed' && (
             <div style={{ margin: '0 14px 14px', padding: '12px',
               background: 'var(--green-lt)', borderRadius: 'var(--r-md)',
@@ -177,62 +169,72 @@ export default function ZonePage() {
   const zoneId = params.zoneId as string
 
   const { data, loading, error, dispatch } = useProgress()
-  const [activeStep, setActiveStep]         = useState<StepView | null>(null)
-  const [activeClueId, setActiveClueId]     = useState<string | null>(null)
-  const [expandedClue, setExpandedClue]     = useState<string | null>(null)
-  const [showBadge, setShowBadge]           = useState(false)
-  const [showPin, setShowPin]               = useState(false)
-  const [adults, setAdults]                 = useState<Adult[]>([])
-  const [prevBadges, setPrevBadges]         = useState<string[]>([])
+  const [activeStep, setActiveStep]     = useState<StepView | null>(null)
+  const [activeClueId, setActiveClueId] = useState<string | null>(null)
+  const [expandedClue, setExpandedClue] = useState<string | null>(null)
+  const [showBadge, setShowBadge]       = useState(false)
+  const [showPin, setShowPin]           = useState(false)
+  const [adults, setAdults]             = useState<Adult[]>([])
+  const prevBadgesRef                   = useRef<string[]>([])
 
-  useEffect(() => { if (!getChildId()) router.replace('/') }, [router])
+  useEffect(() => {
+    if (!getChildId()) router.replace('/')
+  }, [router])
+
   useEffect(() => {
     fetch('/api/adults').then(r => r.json()).then(setAdults).catch(() => {})
   }, [])
-  useEffect(() => {
-    if (data) {
-      const zone = data.gameState.zones.find(z => z.id === zoneId)
-      if (zone) {
-        // Auto-expand first non-locked clue
-        const first = zone.clues.find(c => c.status !== 'locked')
-        if (first && !expandedClue) setExpandedClue(first.id)
-      }
-    }
-  }, [data?.gameState])
 
-  if (loading) return <div className="center" style={{ minHeight: '100dvh' }}><div className="spinner animate-spin" /></div>
+  useEffect(() => {
+    if (!data) return
+    const zone = data.gameState.zones.find(z => z.id === zoneId)
+    if (!zone) return
+    const first = zone.clues.find(c => c.status !== 'locked')
+    if (first) setExpandedClue(prev => prev ?? first.id)
+  }, [data, zoneId])
+
+  useEffect(() => {
+    if (!data) return
+    const currentBadges = data.gameState.badges
+    const prev = prevBadgesRef.current
+    if (prev.length > 0) {
+      const hasNew = currentBadges.some(b => !prev.includes(b))
+      if (hasNew) setShowBadge(true)
+    }
+    prevBadgesRef.current = currentBadges
+  }, [data])
+
+  if (loading) return (
+    <div className="center" style={{ minHeight: '100dvh' }}>
+      <div className="spinner animate-spin" />
+    </div>
+  )
+
   if (error || !data) return (
-    <div className="center page"><p>{error ?? 'Error'}</p>
-      <Link href="/map" className="btn btn-secondary" style={{ marginTop: 8 }}>← Mapa</Link></div>
+    <div className="center page">
+      <p>{error ?? 'Error'}</p>
+      <Link href="/map" className="btn btn-secondary" style={{ marginTop: 8 }}>← Mapa</Link>
+    </div>
   )
 
   const zone = data.gameState.zones.find(z => z.id === zoneId)
   if (!zone) return (
-    <div className="center page"><p>Zona no encontrada</p>
-      <Link href="/map" className="btn btn-secondary" style={{ marginTop: 8 }}>← Mapa</Link></div>
+    <div className="center page">
+      <p>Zona no encontrada</p>
+      <Link href="/map" className="btn btn-secondary" style={{ marginTop: 8 }}>← Mapa</Link>
+    </div>
   )
 
   const cluesPct = zone.cluesTotal > 0
     ? Math.round(zone.cluesCompleted / zone.cluesTotal * 100) : 0
 
   async function handleAction(action: GameAction) {
-    const before = data!.gameState.badges.slice()
+    prevBadgesRef.current = data!.gameState.badges.slice()
     await dispatch(action)
-    // Check if new badge was earned (will be detected on next render via useEffect below)
-    setPrevBadges(before)
   }
-
-  // Detect new badge
-  useEffect(() => {
-    if (data && prevBadges.length > 0) {
-      const newBadge = data.gameState.badges.find(b => !prevBadges.includes(b))
-      if (newBadge) setShowBadge(true)
-    }
-  }, [data?.gameState.badges.join(',')])
 
   return (
     <div>
-      {/* Header */}
       <div className="header">
         <Link href="/map" className="btn btn-ghost" style={{ padding: '6px 4px' }}>← Mapa</Link>
         <span className="header-title" style={{ flex: 1, textAlign: 'center', overflow: 'hidden',
@@ -242,7 +244,6 @@ export default function ZonePage() {
         <div style={{ width: 56 }} />
       </div>
 
-      {/* Zone hero */}
       <div style={{ background: 'linear-gradient(135deg,#1a1a2e,#16213e)',
         padding: '16px 16px 20px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', right: -8, top: -8, fontSize: '6rem',
@@ -262,7 +263,6 @@ export default function ZonePage() {
         </div>
       </div>
 
-      {/* Morning card button */}
       <div style={{ padding: '12px 16px 0' }}>
         <button onClick={() => setShowPin(true)} style={{
           width: '100%', display: 'flex', alignItems: 'center', gap: 12,
@@ -285,7 +285,6 @@ export default function ZonePage() {
       </div>
 
       <div className="page" style={{ paddingTop: 16 }}>
-        {/* Badge earned */}
         {zone.badge.unlocked && (
           <div className="animate-pop" style={{
             display: 'flex', alignItems: 'center', gap: 12,
@@ -300,7 +299,6 @@ export default function ZonePage() {
           </div>
         )}
 
-        {/* Clues */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {zone.clues.map(clue => (
             <ClueCard key={clue.id} clue={clue} zoneId={zoneId}
@@ -317,25 +315,20 @@ export default function ZonePage() {
         )}
       </div>
 
-      {/* Step drawer */}
       {activeStep && activeClueId && (
         <StepDrawer step={activeStep} zoneId={zoneId} clueId={activeClueId}
           onClose={() => { setActiveStep(null); setActiveClueId(null) }}
           onComplete={handleAction} />
       )}
 
-      {/* Badge celebration */}
       {showBadge && (
-        <BadgeCelebration badge={zone.badge} onClose={() => { setShowBadge(false); router.push('/map') }} />
+        <BadgeCelebration badge={zone.badge}
+          onClose={() => { setShowBadge(false); router.push('/map') }} />
       )}
 
-      {/* PIN modal for morning card */}
       {showPin && adults.length > 0 && (
         <PinModal adults={adults}
-          onSuccess={(adultId) => {
-            setShowPin(false)
-            router.push(`/morning/${zoneId}`)
-          }}
+          onSuccess={() => { setShowPin(false); router.push(`/morning/${zoneId}`) }}
           onCancel={() => setShowPin(false)} />
       )}
     </div>
