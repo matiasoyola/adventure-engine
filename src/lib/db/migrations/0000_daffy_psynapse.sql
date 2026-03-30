@@ -16,6 +16,20 @@ CREATE TABLE `children` (
 	FOREIGN KEY (`parent_id`) REFERENCES `adults`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE TABLE `photos` (
+	`id` text PRIMARY KEY NOT NULL,
+	`child_id` text NOT NULL,
+	`child_name` text NOT NULL,
+	`child_avatar` text NOT NULL,
+	`adventure_id` text NOT NULL,
+	`zone_id` text NOT NULL,
+	`zone_name` text NOT NULL,
+	`step_id` text NOT NULL,
+	`url` text NOT NULL,
+	`created_at` text NOT NULL,
+	FOREIGN KEY (`child_id`) REFERENCES `children`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
 CREATE TABLE `progress` (
 	`id` text PRIMARY KEY NOT NULL,
 	`child_id` text NOT NULL,

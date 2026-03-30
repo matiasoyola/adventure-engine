@@ -1,6 +1,6 @@
 {
   "id": "potes-2026",
-  "version": "2.0.0",
+  "version": "4.0.0",
   "title": "La Gran Aventura de Potes",
   "description": "Semana Santa 2026 · Picos de Europa · 5 días",
   "coverImage": "/images/potes-cover.jpg",
@@ -33,7 +33,7 @@
         "name": "Superviviente de Jumanji",
         "icon": "🎲",
         "completionMessage": "JUMANJI. Lo habéis conseguido. El juego ha terminado... por hoy.",
-        "nextDayHint": "Mañana llega un nuevo universo. Día 2 · Costa Cantábrica 🏴‍☠️. Dormid bien, exploradores."
+        "nextDayHint": "Mañana llega un nuevo universo. Día 2 · Covadonga 🐉. Dormid bien, exploradores."
       },
       "clues": [
         {
@@ -81,96 +81,21 @@
       ]
     },
     {
-      "id": "costa-cantabrica",
-      "name": "Costa Cantábrica",
-      "description": "Donde el mar esconde sus secretos",
-      "icon": "🏴‍☠️",
-      "universe": "Piratas del Caribe",
-      "suggestedOrder": 2,
-      "morningCard": {
-        "title": "Día 2 · Costa Cantábrica",
-        "universe": "Piratas del Caribe",
-        "parentGuide": "Hoy visitáis San Vicente de la Barquera, Comillas y Santillana del Mar. San Vicente es un pueblo pesquero con una ría espectacular y una iglesia medieval. Comillas tiene el Capricho de Gaudí y un ambiente muy especial. Santillana del Mar es probablemente el pueblo medieval mejor conservado de España. Para comer, buscad chiringuito en la playa.",
-        "ritual": "Piratas, la noche pasada llegó al puerto un mensaje en una botella. Dice que el mar Cantábrico guarda un tesoro que nadie ha encontrado en 300 años. Solo los exploradores que demuestren valor ante las olas podrán encontrarlo.",
-        "watchFor": [
-          "El color del mar: ¿es verde, azul o gris hoy?",
-          "El barco más grande que veáis",
-          "Una gaviota haciendo algo gracioso"
-        ],
-        "clueSchedule": [
-          { "clueId": "costa-pista-1", "trigger": "Cuando veáis el mar por primera vez" },
-          { "clueId": "costa-pista-2", "trigger": "Después de comer, en la playa o el paseo" },
-          { "clueId": "costa-pista-3", "trigger": "Antes de volver al coche al final del día" }
-        ]
-      },
-      "badge": {
-        "id": "capitan-cantabrico",
-        "name": "Capitán Cantábrico",
-        "icon": "⚓",
-        "completionMessage": "⚓ Habéis encontrado el tesoro que los piratas perdieron hace 300 años. El mar Cantábrico ya conoce vuestros nombres.",
-        "nextDayHint": "Mañana... algo muy especial os espera. Un lugar donde la magia es real. Día 3 · Covadonga ⚡"
-      },
-      "clues": [
-        {
-          "id": "costa-pista-1",
-          "order": 1,
-          "title": "El primer avistamiento",
-          "narrative": "El mar Cantábrico no es un mar cualquiera. Es el mar más bravo de España. Los piratas que navegaban aquí hace 300 años decían que el Cantábrico tiene memoria: recuerda a todos los que lo han mirado a los ojos. Miradlo bien. Él también os está mirando a vosotros.",
-          "unlockTrigger": "Cuando veáis el mar por primera vez",
-          "completionMessage": "🏴‍☠️ El Cantábrico os ha reconocido. Sois dignos de buscar el tesoro.",
-          "nextClueHint": "La pista 2 se abre después de comer. Que el mar os llene de energía.",
-          "steps": [
-            { "id": "cos-p1-s1", "order": 1, "text": "Mirad el horizonte durante 30 segundos sin hablar. ¿Cuántos barcos veis? ¿Hay alguno que parezca pirata?", "type": "check" },
-            { "id": "cos-p1-s2", "order": 2, "text": "Buscad una piedra o concha perfecta en la orilla. Cada explorador guarda la suya como amuleto del viaje.", "type": "check" },
-            { "id": "cos-p1-s3", "order": 3, "text": "Foto de grupo con el mar de fondo. Los pies en el agua si podéis.", "type": "photo" }
-          ]
-        },
-        {
-          "id": "costa-pista-2",
-          "order": 2,
-          "title": "El mapa del tesoro",
-          "narrative": "Los piratas del Cantábrico escondían sus tesoros en los pueblos de la costa. Santillana del Mar, Comillas, San Vicente... cada uno guarda una pista del mapa. Tenéis que encontrarlas antes de que anochezca.",
-          "unlockTrigger": "Después de comer",
-          "completionMessage": "🗺️ ¡Habéis encontrado las pistas del mapa! El tesoro está cada vez más cerca.",
-          "nextClueHint": "La última pista se abre antes de volver al coche. El tesoro os espera.",
-          "steps": [
-            { "id": "cos-p2-s1", "order": 1, "text": "Encontrad una calle o callejón de piedra en el pueblo. ¿Cuántos años creéis que tiene? Los piratas la pisaron.", "type": "check" },
-            { "id": "cos-p2-s2", "order": 2, "text": "Buscad una ventana con flores o una puerta de colores. Los piratas la usaban como señal secreta.", "type": "check" },
-            { "id": "cos-p2-s3", "order": 3, "text": "Foto del explorador más valiente del grupo delante de algo muy antiguo.", "type": "photo" }
-          ]
-        },
-        {
-          "id": "costa-pista-3",
-          "order": 3,
-          "title": "El tesoro del Cantábrico",
-          "narrative": "Habéis seguido todas las pistas. El tesoro de los piratas cantábricos no era oro ni plata. Era algo mucho más valioso: un recuerdo que dura para siempre. Completad la última prueba y el tesoro es vuestro.",
-          "unlockTrigger": "Antes de volver al coche",
-          "completionMessage": "⚓ Habéis encontrado el tesoro que los piratas perdieron hace 300 años.",
-          "nextClueHint": "Mañana algo muy especial os espera. Un lugar donde la magia es real.",
-          "steps": [
-            { "id": "cos-p3-s1", "order": 1, "text": "Cada explorador dice el momento del día en que se ha sentido más pirata. Solo uno.", "type": "check" },
-            { "id": "cos-p3-s2", "order": 2, "text": "Inventad el nombre de vuestro barco pirata. Tiene que tener el nombre de alguien del grupo.", "type": "check" },
-            { "id": "cos-p3-s3", "order": 3, "text": "Foto de grupo con el mejor posado pirata que podáis hacer. El capitán elige la pose.", "type": "photo" }
-          ]
-        }
-      ]
-    },
-    {
       "id": "covadonga",
       "name": "Covadonga",
-      "description": "Donde la magia es más antigua que el tiempo",
-      "icon": "⚡",
-      "universe": "Harry Potter",
-      "suggestedOrder": 3,
+      "description": "La fortaleza donde duermen los dragones",
+      "icon": "🐉",
+      "universe": "Dragones y Mazmorras",
+      "suggestedOrder": 2,
       "morningCard": {
-        "title": "Día 3 · Covadonga",
-        "universe": "???",
-        "parentGuide": "Covadonga es uno de los lugares más especiales de España. La cueva con la Virgen, la cascada, el santuario del siglo XVIII y los Lagos de Covadonga forman un conjunto único. Los lagos (Enol y Ercina) están a 12km del santuario por una carretera de montaña espectacular. En Semana Santa puede haber cola: id pronto. El lago Enol al amanecer es uno de los paisajes más bonitos de Asturias.",
-        "ritual": "Esta mañana ha llegado una carta. No tiene sello. No tiene dirección. Solo tiene vuestros nombres escritos con tinta que brilla en la oscuridad. Es una carta de admisión. A un lugar que no aparece en ningún mapa normal.",
+        "title": "Día 2 · Covadonga",
+        "universe": "Dragones y Mazmorras",
+        "parentGuide": "Covadonga es uno de los lugares más especiales de España. La cueva con la Virgen, la cascada, el santuario del siglo XVIII y los Lagos de Covadonga forman un conjunto único. Hace más de mil años, el guerrero Pelayo se refugió aquí con un puñado de valientes y cambió la historia. Los lagos (Enol y Ercina) están a 12km por carretera de montaña espectacular. En Semana Santa puede haber cola: id pronto.",
+        "ritual": "Guerreros, hoy entráis en la fortaleza más antigua de Cantabria. Hace mil años, un valiente llamado Pelayo luchó aquí contra un ejército enorme. Dicen que lo ayudó un dragón que duerme en las profundidades de la cueva. Hoy tenéis que demostrar que sois dignos de despertar su poder.",
         "watchFor": [
-          "Una piedra que parezca que tiene magia dentro",
-          "Agua que caiga desde muy alto",
-          "El momento exacto en que el lago aparece por primera vez"
+          "Una piedra con forma de escudo o de espada",
+          "El sonido del agua cayendo desde muy alto",
+          "El momento exacto en que el lago aparece entre las montañas"
         ],
         "clueSchedule": [
           { "clueId": "covadonga-pista-1", "trigger": "Al entrar en la cueva o ver la cascada" },
@@ -179,53 +104,128 @@
         ]
       },
       "badge": {
-        "id": "guardian-lagos",
-        "name": "Guardián de los Lagos",
-        "icon": "⚡",
-        "completionMessage": "⚡ Habéis demostrado que la magia existe. Los Lagos os recordarán siempre.",
-        "nextDayHint": "Mañana os espera la montaña más alta. Habrá que ser muy valientes. Día 4 · Fuente Dé 🏔️"
+        "id": "guardian-dragon",
+        "name": "Guardián del Dragón",
+        "icon": "🐉",
+        "completionMessage": "🐉 El dragón de Covadonga os ha reconocido como guerreros dignos. Su fuerza viaja ahora con vosotros.",
+        "nextDayHint": "Mañana el mar os espera. Hay magia en las olas. Día 3 · Costa Cantábrica ⚡"
       },
       "clues": [
         {
           "id": "covadonga-pista-1",
           "order": 1,
-          "title": "La carta de admisión",
-          "narrative": "Esta cueva lleva más de mil años guardando un secreto. El agua que cae por la cascada no es agua normal: según los que saben, tiene propiedades mágicas que solo se activan cuando alguien verdaderamente curioso la toca. ¿Sois suficientemente curiosos?",
+          "title": "La entrada a la mazmorra",
+          "narrative": "Esta cueva lleva más de mil años guardando un secreto. El guerrero Pelayo entró aquí con apenas trescientos hombres para enfrentarse a un ejército de miles. Lo que ningún libro de historia cuenta es lo que encontró dentro: las huellas de un dragón grabadas en la roca. ¿Podéis encontrarlas?",
           "unlockTrigger": "Al entrar en la cueva o ver la cascada",
-          "completionMessage": "✉️ Vuestra admisión ha sido aceptada. Bienvenidos.",
+          "completionMessage": "⚔️ ¡Habéis entrado en la mazmorra! El dragón os observa desde las sombras.",
           "nextClueHint": "La pista 2 se abre cuando veáis el lago por primera vez. Preparad los ojos.",
           "steps": [
-            { "id": "cov-p1-s1", "order": 1, "text": "Escuchad la cascada durante 30 segundos con los ojos cerrados. ¿Qué os parece que dice el agua?", "type": "check" },
-            { "id": "cov-p1-s2", "order": 2, "text": "Buscad una vela encendida dentro de la cueva. Pedid un deseo en silencio. No lo digáis en voz alta o no se cumple.", "type": "check" },
-            { "id": "cov-p1-s3", "order": 3, "text": "Foto del lugar más mágico que hayáis encontrado aquí dentro.", "type": "photo" }
+            { "id": "cov-p1-s1", "order": 1, "text": "Buscad en las paredes de la cueva o las rocas una marca que parezca hecha por una garra enorme. Cuando la encontréis, poned la mano encima.", "type": "check" },
+            { "id": "cov-p1-s2", "order": 2, "text": "Escuchad la cascada 30 segundos con los ojos cerrados. El dragón habla a través del agua. ¿Qué os parece que dice?", "type": "check" },
+            { "id": "cov-p1-s3", "order": 3, "text": "Foto del guerrero más valiente del grupo junto a la cueva o la cascada.", "type": "photo" }
           ]
         },
         {
           "id": "covadonga-pista-2",
           "order": 2,
-          "title": "El lago de los secretos",
-          "narrative": "El lago Enol tiene 12.000 años. Lo formó un glaciar que tardó miles de años en derretirse. Dicen que en sus profundidades duerme algo muy antiguo. Algo que solo despierta cuando ve su reflejo en la superficie del agua. Mirad bien vuestro reflejo. ¿Veis algo más?",
+          "title": "El lago del dragón dormido",
+          "narrative": "El lago Enol tiene 12.000 años. Lo formó un glaciar gigantesco. Pero los antiguos guerreros de estas montañas sabían la verdad: el lago es el ojo de un dragón que duerme bajo la tierra. Cuando el lago brilla, el dragón sueña. Cuando el lago tiembla, el dragón se despierta.",
           "unlockTrigger": "Cuando veáis el lago por primera vez",
-          "completionMessage": "🌊 El lago os ha visto. Y vosotros le habéis visto a él. El secreto es mutuo.",
-          "nextClueHint": "La última pista se abre antes de bajar de la montaña. No tengáis prisa.",
+          "completionMessage": "🌊 El ojo del dragón os ha visto. Estáis dentro de su sueño ahora.",
+          "nextClueHint": "La última pista se abre antes de bajar de la montaña. El dragón tiene un último mensaje.",
           "steps": [
-            { "id": "cov-p2-s1", "order": 1, "text": "Buscad vuestro reflejo en el lago. Cada explorador mira el suyo durante 10 segundos. ¿Veis algo raro?", "type": "check" },
-            { "id": "cov-p2-s2", "order": 2, "text": "Contad cuántas montañas diferentes rodean el lago. El que más cuente tiene vista de águila.", "type": "check" },
-            { "id": "cov-p2-s3", "order": 3, "text": "Foto de grupo con el lago al fondo. Intentad que el cielo y el agua tengan el mismo color.", "type": "photo" }
+            { "id": "cov-p2-s1", "order": 1, "text": "Mirad el lago en silencio durante 30 segundos. ¿Veis algún movimiento bajo el agua? ¿Algún reflejo extraño?", "type": "check" },
+            { "id": "cov-p2-s2", "order": 2, "text": "Contad cuántas montañas rodean el lago. Cada montaña es una escama del dragón dormido.", "type": "check" },
+            { "id": "cov-p2-s3", "order": 3, "text": "Foto de grupo con el lago al fondo. Todos con el puño en alto: el saludo de los guerreros.", "type": "photo" }
           ]
         },
         {
           "id": "covadonga-pista-3",
           "order": 3,
-          "title": "El juramento de los Lagos",
-          "narrative": "Los guardianes de los Lagos de Covadonga hacen siempre el mismo juramento antes de bajar: volver algún día. Es la única forma de que la magia del lago no desaparezca.",
+          "title": "El juramento del guerrero",
+          "narrative": "Los guerreros que visitan al dragón de Covadonga deben hacer siempre el mismo juramento antes de bajar: proteger estas montañas y volver algún día. Es la única forma de que el dragón os recuerde como aliados y no como intrusos.",
           "unlockTrigger": "Antes de bajar de la montaña",
-          "completionMessage": "⚡ Habéis demostrado que la magia existe. Los Lagos os recordarán siempre.",
-          "nextClueHint": "Mañana os espera la montaña más alta. Habrá que ser muy valientes.",
+          "completionMessage": "🐉 El dragón de Covadonga os ha reconocido como guerreros dignos. Su fuerza viaja ahora con vosotros.",
+          "nextClueHint": "Mañana el mar os espera. Hay magia en las olas.",
           "steps": [
-            { "id": "cov-p3-s1", "order": 1, "text": "Cada explorador dice en voz alta: 'Juro volver a los Lagos de Covadonga'. Mirad el lago mientras lo decís.", "type": "check" },
-            { "id": "cov-p3-s2", "order": 2, "text": "Encontrad una piedra pequeña cerca del lago. Guardadla. Es vuestra conexión con este lugar.", "type": "check" },
-            { "id": "cov-p3-s3", "order": 3, "text": "Foto de grupo con el lago. La última antes de bajar. Que salgan todos.", "type": "photo" }
+            { "id": "cov-p3-s1", "order": 1, "text": "Cada guerrero dice en voz alta: 'Juro volver a las montañas del dragón'. Con el puño en el corazón.", "type": "check" },
+            { "id": "cov-p3-s2", "order": 2, "text": "Elegid una piedra del lago para llevaros. Es vuestra conexión con el dragón. Os protegerá en los próximos días.", "type": "check" },
+            { "id": "cov-p3-s3", "order": 3, "text": "Foto de grupo en la cima antes de bajar. La última foto de guerreros en el reino del dragón.", "type": "photo" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "costa-cantabrica",
+      "name": "Costa Cantábrica",
+      "description": "Donde la magia llega con las olas",
+      "icon": "⚡",
+      "universe": "Harry Potter",
+      "suggestedOrder": 3,
+      "morningCard": {
+        "title": "Día 3 · Costa Cantábrica",
+        "universe": "El Mundo Mágico",
+        "parentGuide": "Hoy visitáis San Vicente de la Barquera, Comillas y Santillana del Mar. San Vicente es un pueblo pesquero con una ría espectacular y una iglesia medieval. Comillas tiene el Capricho de Gaudí — un edificio que parece sacado de un cuento — y un ambiente muy especial. Santillana del Mar es probablemente el pueblo medieval mejor conservado de España. Para comer, buscad chiringuito en la playa o restaurante en Santillana.",
+        "ritual": "Esta mañana ha llegado una carta. No tiene sello. No tiene dirección. Solo tiene vuestros nombres escritos con tinta que brilla en la oscuridad. Es una carta de admisión a la escuela de magia más secreta del norte de España. Hoy tenéis que demostrar que tenéis magia dentro.",
+        "watchFor": [
+          "Un edificio que parezca completamente imposible o mágico",
+          "El mar: ¿de qué color exacto es hoy?",
+          "Una puerta o ventana que parezca la entrada a otro mundo"
+        ],
+        "clueSchedule": [
+          { "clueId": "costa-pista-1", "trigger": "Cuando veáis el mar por primera vez" },
+          { "clueId": "costa-pista-2", "trigger": "Después de comer, paseando por el pueblo" },
+          { "clueId": "costa-pista-3", "trigger": "Antes de volver al coche al final del día" }
+        ]
+      },
+      "badge": {
+        "id": "mago-cantabrico",
+        "name": "Mago del Cantábrico",
+        "icon": "⚡",
+        "completionMessage": "⚡ Habéis demostrado que la magia existe en el mar Cantábrico. Vuestros nombres ya están en el libro de la escuela.",
+        "nextDayHint": "Mañana la montaña más alta os espera. Habrá que ser muy valientes. Día 4 · Fuente Dé 🏔️"
+      },
+      "clues": [
+        {
+          "id": "costa-pista-1",
+          "order": 1,
+          "title": "La carta de admisión",
+          "narrative": "El mar Cantábrico no es un mar normal. Los magos que vivían en estas costas hace siglos lo sabían: las olas traen mensajes del mundo mágico. Si os quedáis quietos y escucháis con atención, podéis oír lo que dicen. Hoy tenéis que demostrar que tenéis el oído de un mago.",
+          "unlockTrigger": "Cuando veáis el mar por primera vez",
+          "completionMessage": "✉️ Vuestra admisión ha sido aceptada. El mar os reconoce como magos.",
+          "nextClueHint": "La pista 2 se abre después de comer. El pueblo guarda más secretos mágicos.",
+          "steps": [
+            { "id": "cos-p1-s1", "order": 1, "text": "Cerrad los ojos y escuchad las olas durante 30 segundos. Cuando los abráis, cada mago dice en voz alta lo primero que le ha venido a la cabeza. Sin pensar.", "type": "check" },
+            { "id": "cos-p1-s2", "order": 2, "text": "Buscad una piedra o concha perfecta en la orilla. Es vuestra varita provisional. Guardadla bien.", "type": "check" },
+            { "id": "cos-p1-s3", "order": 3, "text": "Foto de grupo con el mar de fondo. Cada mago con su varita de piedra en alto.", "type": "photo" }
+          ]
+        },
+        {
+          "id": "costa-pista-2",
+          "order": 2,
+          "title": "Los secretos del pueblo mágico",
+          "narrative": "Santillana del Mar, Comillas, San Vicente... estos pueblos parecen normales. Pero si miráis con ojos de mago, veréis lo que los muggles no pueden ver. Hay señales en cada esquina. Hay magia escondida en cada piedra antigua. Tenéis que encontrarla.",
+          "unlockTrigger": "Después de comer",
+          "completionMessage": "🔮 Habéis visto lo que los muggles no pueden ver. Vuestros poderes están despertando.",
+          "nextClueHint": "La última pista se abre antes de volver al coche. Hay un hechizo final que completar.",
+          "steps": [
+            { "id": "cos-p2-s1", "order": 1, "text": "Encontrad un edificio o una puerta que parezca completamente imposible o mágica. Los magos lo construyeron así para que los muggles creyeran que era normal.", "type": "check" },
+            { "id": "cos-p2-s2", "order": 2, "text": "Buscad una calle de piedra muy antigua. Contad los adoquines de una fila. Ese número es vuestro número mágico del día.", "type": "check" },
+            { "id": "cos-p2-s3", "order": 3, "text": "Foto del mago más poderoso del grupo delante de algo muy antiguo o muy mágico.", "type": "photo" }
+          ]
+        },
+        {
+          "id": "costa-pista-3",
+          "order": 3,
+          "title": "El hechizo del regreso",
+          "narrative": "Todo mago que visita la costa cantábrica debe lanzar el mismo hechizo antes de irse. Es el hechizo que permite volver. Sin él, el mar no os recordará como magos la próxima vez que vengáis.",
+          "unlockTrigger": "Antes de volver al coche",
+          "completionMessage": "⚡ Habéis demostrado que la magia existe en el mar Cantábrico. Vuestros nombres ya están en el libro de la escuela.",
+          "nextClueHint": "Mañana la montaña más alta os espera. Habrá que ser muy valientes.",
+          "steps": [
+            { "id": "cos-p3-s1", "order": 1, "text": "Cada mago inventa una palabra mágica de al menos 5 letras. La dicen en voz alta mirando al mar. Ese es su hechizo personal.", "type": "check" },
+            { "id": "cos-p3-s2", "order": 2, "text": "Votad entre todos: ¿cuál ha sido el momento más mágico del día? El ganador recibe el título de Gran Mago de la jornada.", "type": "check" },
+            { "id": "cos-p3-s3", "order": 3, "text": "Foto final de todos los magos juntos. Con la varita de piedra y la mejor cara de mago que podáis poner.", "type": "photo" }
           ]
         }
       ]
@@ -240,7 +240,7 @@
       "morningCard": {
         "title": "Día 4 · Liébana y Fuente Dé",
         "universe": "La Roca del Dragón",
-        "parentGuide": "Hoy es el día más montañero. El teleférico de Fuente Dé sube 753 metros en 4 minutos y llega a 1.823m de altitud: las vistas son espectaculares. Mogrovejo es un pueblo medieval perfectamente conservado con una torre del siglo XVI. El Monasterio de Santo Toribio guarda lo que la tradición considera el trozo más grande de la Vera Cruz. El valle de Liébana en sí es un microclima único: hace más calor que fuera y tiene una vegetación exuberante.",
+        "parentGuide": "Hoy es el día más montañero. El teleférico de Fuente Dé sube 753 metros en 4 minutos y llega a 1.823m de altitud: las vistas son espectaculares. Mogrovejo es un pueblo medieval perfectamente conservado con una torre del siglo XVI. El Monasterio de Santo Toribio guarda lo que la tradición considera el trozo más grande de la Vera Cruz. El valle de Liébana tiene un microclima único: hace más calor que fuera.",
         "ritual": "Exploradores, hoy ascendemos a la Roca del Dragón. Nadie ha llegado a la cima sin demostrar antes que tiene el corazón de un explorador de verdad. La montaña os está mirando. ¿Estáis preparados?",
         "watchFor": [
           "La montaña más alta que podáis ver desde abajo",
@@ -256,8 +256,8 @@
       "badge": {
         "id": "domador-dragon",
         "name": "Domador del Dragón",
-        "icon": "🐉",
-        "completionMessage": "🐉 La montaña os ha aceptado como sus guardianes. El dragón duerme tranquilo esta noche.",
+        "icon": "🦅",
+        "completionMessage": "🦅 La montaña os ha aceptado como sus guardianes. El dragón duerme tranquilo esta noche.",
         "nextDayHint": "Mañana es el último día. Los héroes siempre regresan a casa. Día 5 · El Regreso 🌟"
       },
       "clues": [
@@ -272,7 +272,7 @@
           "steps": [
             { "id": "fue-p1-s1", "order": 1, "text": "Mirad la montaña desde abajo. Calculad entre todos cuántos metros de altura tiene. El que más se acerque a 1.823m gana.", "type": "check" },
             { "id": "fue-p1-s2", "order": 2, "text": "Cada explorador pone la mano en la roca de la montaña antes de subir. Es el saludo al dragón.", "type": "check" },
-            { "id": "fue-p1-s3", "order": 3, "text": "Foto de grupo con la montaña al fondo, antes de subir. Es la foto del 'antes'.", "type": "photo" }
+            { "id": "fue-p1-s3", "order": 3, "text": "Foto de grupo con la montaña al fondo, antes de subir. Es la foto del antes.", "type": "photo" }
           ]
         },
         {
@@ -295,12 +295,12 @@
           "title": "El descenso del héroe",
           "narrative": "Los héroes que suben a la montaña siempre bajan cambiados. Algo de la montaña se queda con ellos para siempre. El dragón os ha elegido como sus guardianes. Eso significa que tenéis una responsabilidad.",
           "unlockTrigger": "Al volver abajo",
-          "completionMessage": "🐉 La montaña os ha aceptado como sus guardianes. El dragón duerme tranquilo esta noche.",
+          "completionMessage": "🦅 La montaña os ha aceptado como sus guardianes. El dragón duerme tranquilo esta noche.",
           "nextClueHint": "Mañana es el último día. Los héroes siempre regresan a casa.",
           "steps": [
             { "id": "fue-p3-s1", "order": 1, "text": "Cada explorador dice una cosa que haya visto hoy que nunca olvidará. Solo una.", "type": "check" },
             { "id": "fue-p3-s2", "order": 2, "text": "Decidid entre todos: si el dragón tuviera nombre, ¿cómo se llamaría? Votad.", "type": "check" },
-            { "id": "fue-p3-s3", "order": 3, "text": "Foto de grupo al pie de la montaña. La foto del 'después'. Comparadla con la del antes.", "type": "photo" }
+            { "id": "fue-p3-s3", "order": 3, "text": "Foto de grupo al pie de la montaña. La foto del después. Comparadla con la del antes.", "type": "photo" }
           ]
         }
       ]
@@ -373,8 +373,8 @@
           "completionMessage": "🌟 La Gran Aventura de Potes ha terminado. Hasta la próxima aventura, exploradores.",
           "nextClueHint": "La aventura ha terminado. Pero los exploradores legendarios siempre vuelven.",
           "steps": [
-            { "id": "reg-p3-s1", "order": 1, "text": "Cada explorador cuenta a alguien de casa (abuelos, amigos...) UNA historia del viaje. La más emocionante.", "type": "check" },
-            { "id": "reg-p3-s2", "order": 2, "text": "Revisad todas las fotos del viaje juntos. Elegid entre todos la foto definitiva: la que representa toda la aventura.", "type": "check" },
+            { "id": "reg-p3-s1", "order": 1, "text": "Cada explorador cuenta a alguien de casa una historia del viaje. La más emocionante.", "type": "check" },
+            { "id": "reg-p3-s2", "order": 2, "text": "Revisad todas las fotos del viaje juntos. Elegid entre todos la foto definitiva de toda la aventura.", "type": "check" },
             { "id": "reg-p3-s3", "order": 3, "text": "Foto de grupo en casa. Los exploradores han vuelto. La aventura fue real.", "type": "photo" }
           ]
         }

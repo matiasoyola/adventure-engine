@@ -25,9 +25,9 @@ export function createInitialState(adventure: AdventureContent): ProgressState {
       }
     }
 
-    // Zona 1 disponible, el resto bloqueadas
+    // Todas las zonas disponibles desde el inicio (mapa libre)
     zones[zone.id] = {
-      status: zone.suggestedOrder === 1 ? 'available' : 'locked',
+      status: 'available',
       clues,
     }
   }

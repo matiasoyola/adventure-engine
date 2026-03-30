@@ -1,6 +1,6 @@
 {
-  "name": "family-adventure-engine-v2",
-  "version": "0.1.0",
+  "name": "family-adventure-engine-v4final",
+  "version": "4.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

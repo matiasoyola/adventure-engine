@@ -1,45 +1,44 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-// =============================================================================
-// adults — moderadores del juego, uno por familia
-// PIN de 4 dígitos para acceder al modo adulto
-// =============================================================================
 export const adults = sqliteTable('adults', {
-  id:          text('id').primaryKey(),               // "adt_xxxxxxxx"
+  id:          text('id').primaryKey(),
   name:        text('name').notNull(),
   avatar:      text('avatar').notNull(),
-  pin:         text('pin').notNull(),                 // 4 dígitos, sin hash en MVP
+  pin:         text('pin').notNull(),
   adventureId: text('adventure_id').notNull(),
   createdAt:   text('created_at').notNull(),
 })
 
-// =============================================================================
-// children — exploradores del juego, dependen de un adulto
-// Sin contraseña — selección por avatar
-// =============================================================================
 export const children = sqliteTable('children', {
-  id:        text('id').primaryKey(),                 // "kid_xxxxxxxx"
+  id:        text('id').primaryKey(),
   name:      text('name').notNull(),
   avatar:    text('avatar').notNull(),
   parentId:  text('parent_id').notNull().references(() => adults.id, { onDelete: 'cascade' }),
   createdAt: text('created_at').notNull(),
 })
 
-// =============================================================================
-// progress — estado de juego por niño
-// Un registro por niño (en MVP, una aventura activa)
-// state: JSON blob con ProgressState completo
-// =============================================================================
 export const progress = sqliteTable('progress', {
   id:          text('id').primaryKey(),
   childId:     text('child_id').notNull().references(() => children.id, { onDelete: 'cascade' }),
   adventureId: text('adventure_id').notNull(),
-  state:       text('state').notNull(),               // JSON blob: ProgressState
+  state:       text('state').notNull(),
   updatedAt:   text('updated_at').notNull(),
+})
+
+export const photos = sqliteTable('photos', {
+  id:          text('id').primaryKey(),
+  childId:     text('child_id').notNull().references(() => children.id, { onDelete: 'cascade' }),
+  childName:   text('child_name').notNull(),
+  childAvatar: text('child_avatar').notNull(),
+  adventureId: text('adventure_id').notNull(),
+  zoneId:      text('zone_id').notNull(),
+  zoneName:    text('zone_name').notNull(),
+  stepId:      text('step_id').notNull(),
+  url:         text('url').notNull(),
+  createdAt:   text('created_at').notNull(),
 })
 
 export type Adult    = typeof adults.$inferSelect
 export type Child    = typeof children.$inferSelect
 export type Progress = typeof progress.$inferSelect
-export type NewAdult = typeof adults.$inferInsert
-export type NewChild = typeof children.$inferInsert
+export type Photo    = typeof photos.$inferSelect
