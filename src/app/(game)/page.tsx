@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation'
 import { setChildId } from '@/hooks/useProgress'
 
 interface Adult { id: string; name: string; avatar: string; adventureId: string }
-interface Child { id: string; name: string; avatar: string; parentId: string; parentName: string }
+interface Child {
+  id: string; name: string; avatar: string; parentId: string; parentName: string
+  completedZones?: number; totalZones?: number; badges?: string[]
+}
 
 const AVATARS = ['🦊','🐻','🦁','🐯','🦋','🐲','🐺','🦅','🐸','🦄','🦒','🐧']
 const ADULT_AVATARS = ['👨','👩','🧑','👴','👵','🧔']
@@ -20,6 +23,7 @@ export default function SelectPage() {
   const [kids, setKids]       = useState<Child[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab]         = useState<'play'|'setup'>('play')
+  const [currentDay, setCurrentDay] = useState<string>('')
 
   const [showAdultForm, setShowAdultForm] = useState(false)
   const [showChildForm, setShowChildForm] = useState(false)
@@ -43,8 +47,33 @@ export default function SelectPage() {
       fetch('/api/adults').then(r => r.json()),
       fetch('/api/children').then(r => r.json()),
     ])
-    setAdults(a); setKids(k)
-    if (a.length > 0) setParentId(a[0].id)
+    setAdults(a); setParentId(a[0]?.id ?? '')
+
+    // Load progress for each child
+    const kidsWithProgress = await Promise.all(
+      k.map(async (kid: Child) => {
+        try {
+          const res = await fetch(`/api/progress/${kid.id}`)
+          if (!res.ok) return kid
+          const data = await res.json()
+          return {
+            ...kid,
+            completedZones: data.gameState.completedZones,
+            totalZones: data.gameState.totalZones,
+            badges: data.gameState.badges,
+          }
+        } catch { return kid }
+      })
+    )
+    setKids(kidsWithProgress)
+
+    // Current day from first kid's progress
+    if (kidsWithProgress[0]?.completedZones !== undefined) {
+      const day = (kidsWithProgress[0].completedZones ?? 0) + 1
+      const zones = ['Cabárceno','Covadonga','Costa Cantábrica','Fuente Dé','El Regreso']
+      setCurrentDay(`Día ${Math.min(day, 5)} · ${zones[Math.min(day-1, 4)]}`)
+    }
+
     setLoading(false)
   }
 
@@ -75,11 +104,9 @@ export default function SelectPage() {
     const body: Record<string, string> = { name: editAdult.name, avatar: editAdult.avatar }
     if (editAdult.pin) body.pin = editAdult.pin
     const res = await fetch(`/api/adults/${editAdult.id}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
     })
-    if (res.ok) { await load(); setEditAdult(null) }
-    else setFormError('Error al guardar')
+    if (res.ok) { await load(); setEditAdult(null) } else setFormError('Error al guardar')
     setSaving(false)
   }
 
@@ -104,8 +131,7 @@ export default function SelectPage() {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: editChild.name, avatar: editChild.avatar }),
     })
-    if (res.ok) { await load(); setEditChild(null) }
-    else setFormError('Error al guardar')
+    if (res.ok) { await load(); setEditChild(null) } else setFormError('Error al guardar')
     setSaving(false)
   }
 
@@ -119,7 +145,7 @@ export default function SelectPage() {
     await load(); setConfirmDelete(null); setSaving(false)
   }
 
-  const inputStyle = {
+  const inputStyle: React.CSSProperties = {
     width: '100%', padding: '10px 12px', marginBottom: 8, fontSize: '.9rem',
     fontFamily: 'var(--font-body)', border: '1.5px solid var(--border)',
     borderRadius: 'var(--r-sm)', outline: 'none', background: 'var(--bg)', color: 'var(--ink)',
@@ -155,24 +181,90 @@ export default function SelectPage() {
   return (
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
 
-      {/* Hero */}
-      <div style={{ padding: '36px 20px 24px',
-        background: 'linear-gradient(180deg,#1a1a2e,#16213e)',
-        textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, opacity: .5, backgroundImage:
-          'radial-gradient(1px 1px at 20% 30%,white,transparent),radial-gradient(1.5px 1.5px at 70% 15%,white,transparent),radial-gradient(1px 1px at 50% 60%,white,transparent),radial-gradient(1px 1px at 85% 45%,white,transparent)' }} />
-        <div style={{ position: 'relative' }}>
-          <div style={{ fontSize: '3rem', marginBottom: 8 }} className="animate-float">🗺️</div>
-          <h1 style={{ color: '#fff', fontSize: '1.7rem' }}>La Gran Aventura</h1>
-          <p style={{ color: 'rgba(255,255,255,.6)', fontSize: '.85rem', marginTop: 4 }}>
+      {/* ── HERO — parchment map ── */}
+      <div style={{ position: 'relative', height: 260, overflow: 'hidden', flexShrink: 0 }}>
+        {/* Parchment base */}
+        <div style={{ position: 'absolute', inset: 0,
+          background: 'linear-gradient(160deg,#f8edce,#f0e0aa,#e8d48e,#ddc87a)' }} />
+
+        {/* SVG decorations */}
+        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+          viewBox="0 0 380 260" preserveAspectRatio="xMidYMid slice">
+          <polygon points="0,260 50,180 110,210 170,140 230,200 290,155 350,185 380,165 380,260"
+            fill="#7a5c14" opacity=".1"/>
+          <path d="M0 260 Q80 230 160 242 Q240 252 320 228 Q355 218 380 232 L380 260 Z"
+            fill="#4a7a28" opacity=".13"/>
+          <rect x="10" y="10" width="360" height="240" rx="8" fill="none"
+            stroke="rgba(100,65,15,.22)" stroke-width="2"/>
+          <text x="18" y="30" fontSize="14" fill="rgba(100,65,15,.28)">✦</text>
+          <text x="350" y="30" fontSize="14" fill="rgba(100,65,15,.28)">✦</text>
+          <text x="18" y="248" fontSize="14" fill="rgba(100,65,15,.28)">✦</text>
+          <text x="350" y="248" fontSize="14" fill="rgba(100,65,15,.28)">✦</text>
+          <path d="M290 50 Q275 90 285 130 Q295 165 280 200"
+            stroke="rgba(80,140,200,.18)" strokeWidth="3" fill="none" strokeLinecap="round"/>
+          <g stroke="rgba(100,65,15,.1)" strokeWidth="1.2">
+            <path d="M50 190 L56 196 M56 190 L50 196"/>
+            <path d="M310 120 L316 126 M316 120 L310 126"/>
+          </g>
+          <g transform="translate(340,220)" opacity=".18">
+            <circle cx="0" cy="0" r="18" fill="none" stroke="#7a5010" strokeWidth="1"/>
+            <path d="M0,-14 L2.5,-5 L0,-7.5 L-2.5,-5 Z" fill="#7a5010"/>
+            <text x="0" y="-18" textAnchor="middle" fontSize="5" fill="#7a5010" fontFamily="'Fredoka',sans-serif">N</text>
+          </g>
+        </svg>
+
+        {/* Trees */}
+        {[
+          { left: 14, top: 120, size: 18, delay: '0s' }, { left: 20, top: 142, size: 13, delay: '.5s' },
+          { right: 14, top: 130, size: 16, delay: '.3s' }, { right: 20, top: 150, size: 12, delay: '.8s' },
+        ].map((t, i) => (
+          <div key={i} style={{
+            position: 'absolute', ...t, fontSize: t.size, opacity: .32,
+            animation: `treeSway ${2.5 + i * 0.4}s ease-in-out infinite alternate`,
+            transformOrigin: 'bottom center',
+          }}>🌲</div>
+        ))}
+
+        {/* Clouds */}
+        <div style={{ position: 'absolute', left: '8%', top: 16, fontSize: 24, opacity: .35,
+          animation: 'cloudDrift 8s ease-in-out infinite alternate' }}>☁</div>
+        <div style={{ position: 'absolute', left: '60%', top: 10, fontSize: 18, opacity: .28,
+          animation: 'cloudDrift 11s ease-in-out infinite alternate-reverse' }}>☁</div>
+
+        {/* Content */}
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', padding: '20px 24px' }}>
+          <div style={{ fontSize: '3.8rem', marginBottom: 10, animation: 'float 3s ease-in-out infinite',
+            filter: 'drop-shadow(0 6px 12px rgba(0,0,0,.2))' }}>🗺️</div>
+          <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#2a1505', textAlign: 'center',
+            lineHeight: 1.1, margin: '0 0 6px',
+            textShadow: '0 1px 0 rgba(255,255,255,.5)' }}>
+            La Gran Aventura
+          </h1>
+          <p style={{ fontSize: '12px', color: 'rgba(60,35,8,.5)', fontFamily: 'var(--font-body)',
+            fontWeight: 700, margin: '0 0 16px', letterSpacing: '.04em' }}>
             Potes · Semana Santa 2026
           </p>
-          <p style={{ color: 'rgba(255,255,255,.25)', fontSize: '.7rem', marginTop: 4 }}>v4.0.0</p>
+          {currentDay && (
+            <div style={{ background: 'rgba(232,150,14,.22)', border: '1.5px solid rgba(232,150,14,.4)',
+              borderRadius: 99, padding: '5px 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 13 }}>📅</span>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#5a3000',
+                fontFamily: 'var(--font-body)' }}>{currentDay}</span>
+            </div>
+          )}
         </div>
+
+        {/* CSS animations */}
+        <style>{`
+          @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+          @keyframes cloudDrift{0%{transform:translateX(0)}100%{transform:translateX(12px)}}
+          @keyframes treeSway{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.5deg)}}
+        `}</style>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '1.5px solid var(--border)', background: 'var(--bg)' }}>
+      {/* ── TABS ── */}
+      <div style={{ display: 'flex', borderBottom: '1.5px solid var(--border)', background: 'var(--bg)', flexShrink: 0 }}>
         {(['play','setup'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)} style={{
             flex: 1, padding: '12px', background: 'none', border: 'none', cursor: 'pointer',
@@ -200,51 +292,101 @@ export default function SelectPage() {
               </div>
             ) : (
               <>
-                <p style={{ fontSize: '.8rem', color: 'var(--ink-3)', marginBottom: 12,
-                  fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em' }}>
+                <p style={{ fontSize: '.78rem', color: 'var(--ink-3)', marginBottom: 12,
+                  fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em' }}>
                   ¿Quién juega hoy?
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {kids.map(kid => (
-                    <button key={kid.id} onClick={() => selectChild(kid)} style={{
-                      display: 'flex', alignItems: 'center', gap: 14,
-                      background: 'var(--bg-card)', border: '1.5px solid var(--border)',
-                      borderRadius: 'var(--r-lg)', padding: '14px 16px',
-                      cursor: 'pointer', textAlign: 'left', boxShadow: 'var(--shadow)',
-                      fontFamily: 'var(--font-body)', width: '100%',
-                    }}>
-                      <span style={{ width: 52, height: 52, borderRadius: '50%',
-                        background: 'var(--amber-lt)', border: '2px solid var(--border)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '1.9rem', flexShrink: 0 }}>{kid.avatar}</span>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink)' }}>{kid.name}</div>
-                        <div style={{ fontSize: '.75rem', color: 'var(--ink-3)', marginTop: 2 }}>
-                          Familia de {kid.parentName}
+                  {kids.map(kid => {
+                    const pct = kid.totalZones ? Math.round((kid.completedZones ?? 0) / kid.totalZones * 100) : 0
+                    return (
+                      <button key={kid.id} onClick={() => selectChild(kid)} style={{
+                        display: 'flex', alignItems: 'center', gap: 13,
+                        background: 'linear-gradient(135deg,#fffcf5,#fff8e8)',
+                        border: '1.5px solid rgba(232,150,14,.3)',
+                        borderRadius: 'var(--r-lg)', padding: '14px 16px',
+                        cursor: 'pointer', textAlign: 'left',
+                        boxShadow: '0 2px 10px rgba(232,150,14,.12)',
+                        fontFamily: 'var(--font-body)', width: '100%', transition: 'transform .12s',
+                      }}>
+                        {/* Avatar */}
+                        <div style={{ width: 52, height: 52, borderRadius: '50%',
+                          background: 'linear-gradient(135deg,#fef3d0,#fde8a0)',
+                          border: '2.5px solid rgba(232,150,14,.5)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '1.9rem', flexShrink: 0 }}>
+                          {kid.avatar}
                         </div>
-                      </div>
-                      <span style={{ color: 'var(--ink-3)', fontSize: '1.2rem' }}>→</span>
-                    </button>
-                  ))}
+
+                        {/* Info */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink)', marginBottom: 4 }}>
+                            {kid.name}
+                          </div>
+                          {/* Progress bar */}
+                          <div style={{ background: 'rgba(0,0,0,.08)', borderRadius: 99,
+                            height: 5, marginBottom: 5, overflow: 'hidden' }}>
+                            <div style={{ width: `${pct}%`, height: '100%', borderRadius: 99,
+                              background: 'linear-gradient(90deg,#e8960e,#F5C842)',
+                              transition: 'width .5s ease' }} />
+                          </div>
+                          {/* Badges + stats */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: '10px', color: 'rgba(60,40,10,.5)',
+                              fontWeight: 700 }}>
+                              {kid.completedZones ?? 0}/{kid.totalZones ?? 5} días
+                            </span>
+                            {(kid.badges ?? []).length > 0 && (
+                              <>
+                                <span style={{ color: 'rgba(60,40,10,.2)', fontSize: '10px' }}>·</span>
+                                <div style={{ display: 'flex', gap: 2 }}>
+                                  {(kid.badges ?? []).slice(0, 4).map((b, i) => {
+                                    const icons: Record<string,string> = {
+                                      'superviviente-jumanji': '🎲',
+                                      'guardian-dragon': '🐉',
+                                      'mago-cantabrico': '⚡',
+                                      'domador-dragon': '🦅',
+                                      'explorador-legendario': '🌟',
+                                    }
+                                    return <span key={i} style={{ fontSize: '14px' }}>{icons[b] ?? '🏅'}</span>
+                                  })}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        <span style={{ color: 'rgba(60,40,10,.25)', fontSize: '1.2rem' }}>→</span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* Subtle setup link */}
+                <div style={{ textAlign: 'center', marginTop: 20 }}>
+                  <button onClick={() => setTab('setup')} style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: '11px', color: 'rgba(60,40,10,.35)',
+                    fontFamily: 'var(--font-body)', fontWeight: 700,
+                  }}>
+                    ⚙️ Configurar exploradores
+                  </button>
                 </div>
               </>
             )}
           </>
         ) : (
+          /* ── SETUP TAB (mismo que antes) ── */
           <>
-            {/* ── ADULTS ── */}
             <div style={{ marginBottom: 28 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <p style={{ fontSize: '.8rem', color: 'var(--ink-3)', fontWeight: 700,
                   textTransform: 'uppercase', letterSpacing: '.05em' }}>Moderadores</p>
                 {!showAdultForm && !editAdult && (
                   <button onClick={() => { setShowAdultForm(true); setEditAdult(null); setFormError('') }}
-                    className="btn btn-ghost" style={{ fontSize: '.8rem', padding: '4px 8px' }}>
-                    + Añadir
-                  </button>
+                    className="btn btn-ghost" style={{ fontSize: '.8rem', padding: '4px 8px' }}>+ Añadir</button>
                 )}
               </div>
-
               {adults.map(a => (
                 <div key={a.id}>
                   {editAdult?.id === a.id ? (
@@ -253,37 +395,32 @@ export default function SelectPage() {
                       <AvatarPicker options={ADULT_AVATARS} selected={editAdult.avatar}
                         onSelect={v => setEditAdult(p => p ? {...p, avatar: v} : p)} />
                       <input style={inputStyle} value={editAdult.name}
-                        onChange={e => setEditAdult(p => p ? {...p, name: e.target.value} : p)}
-                        placeholder="Nombre" />
+                        onChange={e => setEditAdult(p => p ? {...p, name: e.target.value} : p)} placeholder="Nombre" />
                       <input style={inputStyle} type="tel" inputMode="numeric" maxLength={4}
-                        value={editAdult.pin} placeholder="Nuevo PIN (dejar vacío para no cambiar)"
+                        value={editAdult.pin} placeholder="Nuevo PIN (vacío = no cambiar)"
                         onChange={e => setEditAdult(p => p ? {...p, pin: e.target.value} : p)} />
                       {editAdult.pin && (
                         <input style={inputStyle} type="tel" inputMode="numeric" maxLength={4}
-                          value={editAdult.pin2} placeholder="Repetir nuevo PIN"
+                          value={editAdult.pin2} placeholder="Repetir PIN"
                           onChange={e => setEditAdult(p => p ? {...p, pin2: e.target.value} : p)} />
                       )}
                       {formError && <p style={{ color: 'var(--red)', fontSize: '.8rem', marginBottom: 8 }}>{formError}</p>}
                       <FormButtons onSave={saveAdult} onCancel={() => { setEditAdult(null); setFormError('') }} />
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '12px 14px', background: 'var(--purple-lt)',
-                      borderRadius: 'var(--r-md)', marginBottom: 8,
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px',
+                      background: 'var(--purple-lt)', borderRadius: 'var(--r-md)', marginBottom: 8,
                       border: '1px solid rgba(108,63,212,.15)' }}>
                       <span style={{ fontSize: '1.4rem' }}>{a.avatar}</span>
                       <span style={{ fontWeight: 700, fontSize: '.95rem', color: 'var(--purple)', flex: 1 }}>{a.name}</span>
                       <button onClick={() => { setEditAdult({ id: a.id, name: a.name, avatar: a.avatar, pin: '', pin2: '' }); setShowAdultForm(false); setFormError('') }}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '.8rem',
-                          color: 'var(--ink-3)', padding: '4px 6px' }}>✏️</button>
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '.85rem', padding: '4px 6px' }}>✏️</button>
                       <button onClick={() => setConfirmDelete({ type: 'adult', id: a.id, name: a.name })}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '.8rem',
-                          color: 'var(--red)', padding: '4px 6px' }}>🗑️</button>
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '.85rem', color: 'var(--red)', padding: '4px 6px' }}>🗑️</button>
                     </div>
                   )}
                 </div>
               ))}
-
               {showAdultForm && (
                 <div className="card" style={{ padding: 16, marginTop: 8 }}>
                   <h3 style={{ marginBottom: 12, fontSize: '1rem' }}>Nuevo moderador</h3>
@@ -304,19 +441,15 @@ export default function SelectPage() {
               )}
             </div>
 
-            {/* ── CHILDREN ── */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <p style={{ fontSize: '.8rem', color: 'var(--ink-3)', fontWeight: 700,
                   textTransform: 'uppercase', letterSpacing: '.05em' }}>Exploradores</p>
                 {adults.length > 0 && !showChildForm && !editChild && (
                   <button onClick={() => { setShowChildForm(true); setEditChild(null); setFormError('') }}
-                    className="btn btn-ghost" style={{ fontSize: '.8rem', padding: '4px 8px' }}>
-                    + Añadir
-                  </button>
+                    className="btn btn-ghost" style={{ fontSize: '.8rem', padding: '4px 8px' }}>+ Añadir</button>
                 )}
               </div>
-
               {kids.map(k => (
                 <div key={k.id}>
                   {editChild?.id === k.id ? (
@@ -331,9 +464,8 @@ export default function SelectPage() {
                       <FormButtons onSave={saveChild} onCancel={() => { setEditChild(null); setFormError('') }} />
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '12px 14px', background: 'var(--amber-lt)',
-                      borderRadius: 'var(--r-md)', marginBottom: 8,
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px',
+                      background: 'var(--amber-lt)', borderRadius: 'var(--r-md)', marginBottom: 8,
                       border: '1px solid rgba(232,150,14,.2)' }}>
                       <span style={{ fontSize: '1.4rem' }}>{k.avatar}</span>
                       <div style={{ flex: 1 }}>
@@ -341,16 +473,13 @@ export default function SelectPage() {
                         <div style={{ fontSize: '.72rem', color: 'var(--ink-3)' }}>Familia de {k.parentName}</div>
                       </div>
                       <button onClick={() => { setEditChild({ id: k.id, name: k.name, avatar: k.avatar }); setShowChildForm(false); setFormError('') }}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer',
-                          fontSize: '.8rem', color: 'var(--ink-3)', padding: '4px 6px' }}>✏️</button>
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '.85rem', padding: '4px 6px' }}>✏️</button>
                       <button onClick={() => setConfirmDelete({ type: 'child', id: k.id, name: k.name })}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer',
-                          fontSize: '.8rem', color: 'var(--red)', padding: '4px 6px' }}>🗑️</button>
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '.85rem', color: 'var(--red)', padding: '4px 6px' }}>🗑️</button>
                     </div>
                   )}
                 </div>
               ))}
-
               {showChildForm && adults.length > 0 && (
                 <div className="card" style={{ padding: 16, marginTop: 8 }}>
                   <h3 style={{ marginBottom: 12, fontSize: '1rem' }}>Nuevo explorador</h3>
@@ -373,7 +502,7 @@ export default function SelectPage() {
         )}
       </div>
 
-      {/* Confirm delete dialog */}
+      {/* Confirm delete */}
       {confirmDelete && (
         <div className="drawer-overlay" onClick={() => setConfirmDelete(null)}>
           <div className="drawer" onClick={e => e.stopPropagation()}>
@@ -390,8 +519,7 @@ export default function SelectPage() {
               </p>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }}
-                onClick={() => setConfirmDelete(null)}>Cancelar</button>
+              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setConfirmDelete(null)}>Cancelar</button>
               <button className="btn" style={{ flex: 1, background: 'var(--red)', color: '#fff',
                 opacity: saving ? .7 : 1, boxShadow: '0 4px 0 #8a2020' }}
                 onClick={deleteUser} disabled={saving}>
